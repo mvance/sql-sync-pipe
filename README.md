@@ -9,13 +9,13 @@ into your destination's database. There is actually no compression going on what
 be fine if you have a small site. But lets say that you have a database that's huge, 1GB+ huge. This is a very
 inefficient method of transportation.
 
+## Benchmarks
 Below are examples of syncing the same 1.05Gib database using the two different methods. Keep in mind that these
 "benchmarks" are relative to the connection speed of both the source (server) and destination (local machine). It
 should also be mentioned that even while, yes, the time it takes to sync a database improves, the real
 value of this command lies in the reduced bandwidth consumption (transfer size) between the source and destination
 using `gzip`.
 
-## Benchmarks
 #### drush sql-sync
 The standard `sql-sync` command shipped with drush.
 
