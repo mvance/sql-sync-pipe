@@ -40,7 +40,7 @@ Command:                 drush sql-sync-pipe @alias.dev @alias.sandbox --progres
 Transfer size:           88.1MiB (sent compressed using gzip)
 Import size:             1.05GiB
 Import & transfer time:  27 minutes 05 seconds
-Total time elapsed:      30 minutes and 35 seconds
+Total time elapsed:      30 minutes 35 seconds
 ```
 
 #### drush sql-sync-pipe --dump
@@ -62,7 +62,7 @@ Transfer Size:      88.1MiB (compressed using gzip)
 Transfer Time:      5 minutes 14 seconds (includes time taken to gunzip)
 Import Size:        1.05GiB
 Import Time:        29 minutes 23 seconds
-Total Time Elapsed: 37 minutes and 36 seconds (includes time taken before initial transfer started)
+Total Time Elapsed: 37 minutes 36 seconds (includes time taken before initial transfer started)
 ```
 
 ## drush sql-sync-pipe --progress
