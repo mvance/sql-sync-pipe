@@ -4,7 +4,7 @@ sql-sync-pipe (ssp, pipe)
 Drush command for copying and importing source database to target database. Transfers as a gzipped pipe via SSH.
 
 ```
-Example: drush pipe @siteAlias1.dev @siteAlias1.sandbox --progress --dump --temp --sanitize --confirm-sanitizations
+Example: drush pipe @alias.dev @alias.sandbox --progress --dump --temp --sanitize --confirm-sanitizations
 
 
 Arguments:
