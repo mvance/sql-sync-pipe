@@ -3,6 +3,7 @@ sql-sync-pipe (ssp, pipe)
 
 Drush command for copying and importing source database to target database. Transfers as a gzipped pipe via SSH.
 
+```
 Options:
  --dump                                    Dump to a local file, this will help determine an ETA if the using the progress option.
  --progress                                If the Pipe Viewer command is installed, show the progress of the sync. See:
@@ -18,3 +19,4 @@ Options:
    --confirm-sanitizations                 Prompt yes/no after importing the database, but before running the sanitizations
  --ssh-options                             A string of extra options that will be passed to the ssh command (e.g. "-p 100")
  --temp                                    Use a temporary file to hold dump files.
+```
