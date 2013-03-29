@@ -62,7 +62,7 @@ Transfer Size:      88.1MiB (compressed using gzip)
 Transfer Time:      5 minutes 14 seconds (includes time taken to gunzip)
 Import Size:        1.05GiB
 Import Time:        29 minutes 23 seconds
-Total Time Elapsed: 37 minutes 36 seconds (includes time taken before initial transfer started)
+Total Time Elapsed: 37 minutes 36 seconds
 ```
 
 ## drush sql-sync-pipe --progress
