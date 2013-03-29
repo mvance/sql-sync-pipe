@@ -8,8 +8,10 @@ into your destination's database. There is actually no compression going on what
 be fine if you have a small site. But lets say that you have a DB that's huge, 1GB+ huge. This is a very inefficient
 method of transportation.
 
-Below are examples of syncing the same database using different methods for a 1GB database. Keep in mind that these
-"benchmarks" are relative to the connection speed of both the source (server) and destination (your machine).
+Below are examples of syncing the same database using different methods for the same 1.05GiB database. Keep in mind
+that these "benchmarks" are relative to the connection speed of both the source (server) and destination (local
+machine). It should also be mentioned that even while, yes, the time it takes to sync a database improves, the real
+value of this command lies in the reduced bandwidth consumption (transfer size) between the source and destination.
 
 ## Benchmarks
 #### drush sql-sync
@@ -39,7 +41,7 @@ Total Time Elapsed:      30 minutes and 35 seconds (includes time taken before i
 If you need to save the dump or simply wish to give an ETA estimate when using the `--progress` option, specify the
 `--dump` option. It is similiar to using sql-sync, however there are a few distinct differences. It will still pass
 the same options to `mysqldump` as above. Where it differs, is that it will `gzip` the dump and then pass it via the
-ssh tunnel so it saves to the destination's HDD (your machine) instead of the sources (server). After the dump has
+ssh tunnel so it saves to the destination's HDD (local machine) instead of the sources (server). After the dump has
 been saved, it will then pipe the `gunzip` and the import process. 
 
 NOTE: If the destination alias has specificed a dump file, that will be used and remain on the destination's HDD. If
