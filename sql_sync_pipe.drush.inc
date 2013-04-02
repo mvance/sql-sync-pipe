@@ -5,7 +5,7 @@
  */
 function sql_sync_pipe_drush_command() {
   $items['sql-sync-pipe'] = array(
-    'bootstrap' =>  DRUSH_BOOTSTRAP_MAX,
+    'bootstrap' =>  DRUSH_BOOTSTRAP_DRUSH,
     'description' => 'Copy and import source database to target database. Transfers as a gzipped pipe via SSH.',
 		'aliases' => array(
       'ssp',
