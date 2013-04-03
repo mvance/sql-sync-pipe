@@ -94,10 +94,26 @@ function drush_sql_sync_pipe($source = NULL, $destination = NULL) {
     }
   }
 
+  //Check if uri is empty, if not then use remote URL  
+  $destination_alias = $destination_settings['uri'];
+  $source_alias = $source_settings['uri'];
+  
+  if (strpos($destination_settings['uri'],'default') == true && isset($target_db_url['remote-host'])) {
+  	$destination_alias = $target_db_url['remote-host'];
+  } elseif (isset($target_db_url['host'])) {
+  	$destination_alias = $target_db_url['host'];
+  }
+  
+  if (strpos($source_settings['uri'],'default') == true && isset($source_db_url['remote-host'])) {
+  	$source_alias = $source_db_url['remote-host'];
+  } elseif (isset($source_db_url['host'])) {
+  	$source_alias = $source_db_url['host'];
+  }
+  
   // Create the drop/create MySQL command.Re-create the local DB table.
   drush_print(dt('You are about to destroy data in !destination with data from !source.', array(
-    '!destination' => $destination_settings['uri'] . '/' . $target_db_url['database'],
-    '!source' => $source_settings['uri'] . '/' . $source_db_url['database'],
+    '!destination' => $destination_alias . '/' . $target_db_url['database'],
+    '!source' => $source_alias . '/' . $source_db_url['database'],
   )));
   // If any sanitization operations are to be done, then get the
   // sanitization messages and print them as part of the confirmation.
