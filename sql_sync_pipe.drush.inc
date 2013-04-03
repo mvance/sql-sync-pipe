@@ -93,27 +93,14 @@ function drush_sql_sync_pipe($source = NULL, $destination = NULL) {
       }
     }
   }
-
-  //Check if uri is empty, if not then use remote URL  
-  $destination_alias = $destination_settings['uri'];
-  $source_alias = $source_settings['uri'];
   
-  if (strpos($destination_settings['uri'],'default') == true && isset($target_db_url['remote-host'])) {
-  	$destination_alias = $target_db_url['remote-host'];
-  } elseif (isset($target_db_url['host'])) {
-  	$destination_alias = $target_db_url['host'];
-  }
-  
-  if (strpos($source_settings['uri'],'default') == true && isset($source_db_url['remote-host'])) {
-  	$source_alias = $source_db_url['remote-host'];
-  } elseif (isset($source_db_url['host'])) {
-  	$source_alias = $source_db_url['host'];
-  }
+  $txt_source = (isset($source_db_url['remote-host']) ? $source_db_url['remote-host'] . '/' : '') . $source_db_url['database'];
+  $txt_destination = (isset($target_db_url['remote-host']) ? $target_db_url['remote-host'] . '/' : '') . $target_db_url['database'];
   
   // Create the drop/create MySQL command.Re-create the local DB table.
-  drush_print(dt('You are about to destroy data in !destination with data from !source.', array(
-    '!destination' => $destination_alias . '/' . $target_db_url['database'],
-    '!source' => $source_alias . '/' . $source_db_url['database'],
+  drush_print(dt('You will destroy data in !target and replace with data from !source.', array(
+    '!source' => $txt_source,
+    '!target' => $txt_destination,
   )));
   // If any sanitization operations are to be done, then get the
   // sanitization messages and print them as part of the confirmation.
@@ -164,7 +151,7 @@ function drush_sql_sync_pipe($source = NULL, $destination = NULL) {
     // Dump
     drush_print();
     drush_print(dt('Saving dump from !source ...', array(
-      '!source' => $source_settings['uri'] . '/' . $source_db_url['database'],
+      '!source' => $txt_source,
     )));
     $commands[] = '|';
     $commands[] = $progress ? $progress . ' -cW | gunzip -c > ' . $target_dump : 'gunzip -c > ' . $target_dump;
@@ -176,8 +163,8 @@ function drush_sql_sync_pipe($source = NULL, $destination = NULL) {
     drush_shell_exec($cmd);
     // Importing
     drush_print();
-    drush_print(dt('Importing dump into !destination ...', array(
-      '!destination' => $destination_settings['uri'] . '/' . $target_db_url['database'],
+    drush_print(dt('Importing dump into !target ...', array(
+      '!target' => $txt_destination,
     )));
     $commands = array();
     if ($progress) {
