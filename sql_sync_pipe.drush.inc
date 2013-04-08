@@ -21,6 +21,9 @@ function sql_sync_pipe_drush_command() {
       'temp' => 'Use a temporary file to hold dump files.',
       'ssh-options' => 'A string of extra options that will be passed to the ssh command (e.g. "-p 100")',
       'sanitize' => 'Obscure email addresses and reset passwords in the user table post-sync. Optional.',
+      'enable' => 'Enable the specified modules in the target database after the sync operation has completed.',
+      'disable' => 'Disable the specified modules in the target database after the sync operation has completed.',
+      'permission' => 'Add or remove permissions from a role in the target database after the sync operation has completed. The value of this option must be an array, so it may only be specified in a site alias record or drush configuration file.  See `drush topic docs-example-sync-extension`.',
     ),
     'sub-options' => array(
       'sanitize' => array(
@@ -34,12 +37,6 @@ function sql_sync_pipe_drush_command() {
 }
 
 function drush_sql_sync_pipe($source = NULL, $destination = NULL) {
-  if (empty($source)) {
-    return drush_set_error('DRUSH_ALIAS_NOT_FOUND', dt('Error: an alias must be specificed for the source parameter'));
-  }
-  if (empty($destination)) {
-    return drush_set_error('DRUSH_ALIAS_NOT_FOUND', dt('Error: an alias must be specificed for the destination parameter'));
-  }
  	drush_command_include('sql-sync');
   drush_include(DRUSH_BASE_PATH . '/commands/sql', 'sql.drush.inc');
   
@@ -48,7 +45,20 @@ function drush_sql_sync_pipe($source = NULL, $destination = NULL) {
   
   $destination_settings = drush_sitealias_overlay_options(drush_sitealias_get_record($destination), 'target-');
   $target_db_url = drush_sitealias_get_db_spec($destination_settings, FALSE, 'target-');
-  
+
+  if (empty($source_db_url)) {
+    if (empty($source_settings)) {
+      return drush_set_error('DRUSH_ALIAS_NOT_FOUND', dt('Error: no alias record could be found for !source', array('!source' => $source)));
+    }
+    return drush_set_error('DRUSH_DATABASE_NOT_FOUND', dt('Error: no database record could be found for !source', array('!source' => $source)));
+  }
+  if (empty($target_db_url)) {
+    if (empty($destination_settings)) {
+      return drush_set_error('DRUSH_ALIAS_NOT_FOUND', dt('Error: no alias record could be found for !destination', array('!destination' => $destination)));
+    }
+    return drush_set_error('DRUSH_DATABASE_NOT_FOUND', dt('Error: no database record could be found for !destination', array('!destination' => $destination)));
+  }
+    
   // Bootstrap to the source sites being sync'ed if it is local.
   // This allows modules enabled in the site to participate in the
   // sql-sync hook functions (e.g. to add sanitization operations, etc.).
@@ -245,6 +255,43 @@ function drush_sql_sync_pipe($source = NULL, $destination = NULL) {
         else {
           drush_print("Executing: $sanitize_query");
         }
+      }
+    }
+  }
+}
+
+function drush_sql_sync_pipe_post_sql_sync_pipe($source = NULL, $destination = NULL) {
+  $modules_to_enable = drush_get_option_list('enable');
+  if (!empty($modules_to_enable)) {
+    drush_log(dt("Enable !modules", array('!modules' => implode(',', $modules_to_enable))), 'ok');
+    drush_invoke_process($destination, 'pm-enable', $modules_to_enable, array('yes' => TRUE));
+  }
+  $modules_to_disable = drush_get_option_list('disable');
+  if (!empty($modules_to_disable)) {
+    drush_log(dt("Disable !modules", array('!modules' => implode(',', $modules_to_disable))), 'ok');
+    drush_invoke_process($destination, 'pm-disable', $modules_to_disable, array('yes' => TRUE));
+  }
+  $permissions_table = drush_get_option('permission');
+  if (!empty($permissions_table)) {
+    foreach ($permissions_table as $role => $actions) {
+      $values = drush_invoke_process($destination, 'sql-query', array("select perm from permission, role where role.name='$role' and role.rid = permission.rid;"), array(), array('integrate' => FALSE));
+      // Remove the first line and explode
+      $sql_output = preg_replace('/^.+\n/', '', trim($values['output']));
+      $permissions = explode(', ', $sql_output);
+      $original_permissions = $permissions;
+      if (array_key_exists('add', $actions)) {
+        $permissions_to_add = is_array($actions['add']) ? $actions['add'] : explode(', ', $actions['add']);
+        drush_log(dt("Add !permissions to !role", array('!permissions' => implode(', ', $permissions_to_add), '!role' => $role)), 'ok');
+        $permissions = array_unique(array_merge($permissions, $permissions_to_add));
+      }
+      if (array_key_exists('remove', $actions)) {
+        $permissions_to_remove = is_array($actions['remove']) ? $actions['remove'] : explode(', ', $actions['remove']);
+        drush_log(dt("Remove !permissions from !role", array('!permissions' => implode(', ', $permissions_to_remove), '!role' => $role)), 'ok');
+        $permissions = array_diff($permissions, $permissions_to_remove);
+      }
+      if ($permissions != $original_permissions) {
+        $permissions_string = implode(', ', $permissions);
+        $values = drush_invoke_process($destination, 'sql-query', array("update permission, role set perm='$permissions_string' where role.name='$role' and role.rid = permission.rid;"), array(), array('integrate' => FALSE));
       }
     }
   }
