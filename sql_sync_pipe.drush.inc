@@ -146,7 +146,7 @@ function drush_sql_sync_pipe($source = NULL, $destination = NULL) {
   drush_shell_exec($cmd);
 
   // Create the gzipped SQL dump command.
-  $dump_cmd = 'mysqldump -CceKq --single-transaction -h ' . $source_db_url['host'] . ' -u ' . $source_db_url['username'] . ' -p' . $source_db_url['password'] . ' ' . $source_db_url['database'] . ' | gzip -c9';
+  $dump_cmd = 'mysqldump -CceKq --single-transaction -h ' . $source_db_url['host'] . ' -u ' . $source_db_url['username'] . ' -p\'' . $source_db_url['password'] . '\' ' . $source_db_url['database'] . ' | gzip -c9';
 
   $commands = array();
   // Source is local
